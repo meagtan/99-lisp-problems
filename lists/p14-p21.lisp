@@ -1,6 +1,7 @@
 ;;;; More list operations
 
 ;;; p14
+
 (defun dupli (list)
   "Duplicate the elements of a list.
 Example:
@@ -12,6 +13,7 @@ Example:
                 (dupli (cdr list))))))
                 
 ;;; p15
+
 (defun repli (list n)
   "Replicate the elements of a list a given number of times.
 Example:
@@ -29,6 +31,7 @@ Example:
       (add-item item (cons item list) (1- n))))
       
 ;;; p16
+
 (defun drop (list n &optional (k n))
   "Drop every N'th element from a list.
 Example:
@@ -41,6 +44,7 @@ Example:
               (drop (cdr list) n (1- k))))))
               
 ;;; p17
+
 (defun split (list n)
   "Split a list into two parts; the length of the first part is given.
 Do not use any predefined predicates.
@@ -57,6 +61,7 @@ Example:
                 (cdr res))))))
                 
 ;;; p18
+
 (defun slice (list i k)
   "Extract a slice from a list.
 Given two indices, I and K, the slice is the list containing the elements between the I'th and 
@@ -74,6 +79,7 @@ Example:
         (slice (cdr list) (1- i) (1- k)))))
 
 ;;; p19
+
 (defun rotate (list n)
   "Rotate a list N places to the left.
 Examples:
@@ -89,6 +95,7 @@ Examples:
       (append (cadr partition) (car partition)))))
     
 ;;; p20
+
 (defun remove-at (list k)
   "Remove the K'th element from a list.
 Example:
@@ -100,6 +107,7 @@ Example:
             (remove-at (cdr list) (1- k)))))
             
 ;;; p21
+
 (defun insert-at (item list k)
   "Insert an element at a given position into a list.
 Example:
