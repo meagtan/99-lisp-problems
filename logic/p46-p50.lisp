@@ -64,11 +64,16 @@ fail fail fail true"
       ;; sort items based on frequency
       (sort fs #'< :key #'cdr)
       ;; combine the two least frequent items
-      (setf fs (cons (cons (cons (car fs) (cadr fs))
+      (setf fs (cons (cons (cons (caar fs) (caadr fs)) ;collect the items of the first two pairs
                            (+ (cdar fs) (cdadr fs)))
                      (cddr fs))))
-  (generate-table fs))
+  (generate-table (caar fs)))
 
 (defun generate-table (tree)
-  "Generate Huffman code table from binary tree."
-  (if 
+  "Generate Huffman code table from binary tree, represented as a pair containing a tree and a frequency value."
+  (if (consp tree) ;on a node
+      (append (mapcar (lambda (pair) (cons (car pair) (cons 0 (cdr pair)))) 
+                (generate-table (car tree)))
+              (mapcar (lambda (pair) (cons (car pair) (cons 1 (cdr pair)))) 
+                (generate-table (cdr tree))))
+      (list (cons tree NIL))))
