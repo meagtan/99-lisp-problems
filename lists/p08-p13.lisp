@@ -1,6 +1,7 @@
 ;;;; Compression, packing, etc.
                       
 ;;; p08
+
 (defun compress (list)
   "Eliminate consecutive duplicates of list elements.
 If a list contains repeated elements they should be replaced with a single copy of the element. 
@@ -16,6 +17,7 @@ Example:
       list))
       
 ;;; p09
+
 (defun pack (list)
   "Pack consecutive duplicates of list elements into sublists.
 If a list contains repeated elements they should be placed in separate sublists.
@@ -31,6 +33,7 @@ Example:
       (when list (list list))))
 
 ;;; p10
+
 (defun encode (list)
   "Run-length encoding of a list.
 Use the result of problem P09 to implement the so-called run-length encoding data compression method. 
@@ -44,6 +47,7 @@ Example:
           (pack list))) ;p09
           
 ;;; p11
+
 (defun encode-modified (list)
   "Modified run-length encoding.
 Modify the result of problem P10 in such a way that if an element has no duplicates it is simply copied into the result list. 
@@ -59,6 +63,7 @@ Example:
           (encode list))) ;p11
           
 ;;; p12
+
 (defun decode (list)
   "Decode a run-length encoded list.
 Given a run-length code list generated as specified in problem P11. Construct its uncompressed version."
@@ -70,6 +75,7 @@ Given a run-length code list generated as specified in problem P11. Construct it
             (encode-modified list)))) ;p11
             
 ;;; p13
+
 (defun encode-direct (list)
   "Run-length encoding of a list (direct solution).
 Implement the so-called run-length encoding data compression method directly. I.e. don't explicitly create the sublists containing the duplicates, as in problem P09, but only count them. As in problem P11, simplify the result list by replacing the singleton lists (1 X) by X.
