@@ -53,16 +53,16 @@ possible without two nodes occupying the same position."
 (defun min-distance (left right)
   "Return the minimum distance between the roots of LEFT and RIGHT, laid out starting from the y axis, 
 so that the trees don't intersect."
-  (let ((distance (- (x-coord left) (x-coord (second left)))))
-    (if (intersect-p left right)
-        (* 2 distance) ;should (1+ distance) work for this? or is iteration necessary?
-        distance)))
+  (do ((distance (- (x-coord left) (x-coord (second left))) (1+ distance)))
+      ((not (intersect-p left right (* 2 distance))) distance)))
 
-(defun intersect-p (left right &aux (x (rightmost left)))
-  "Return T if a rightmost node of LEFT intersects a leftmost node of RIGHT."
+(defun intersect-p (left right dx &aux (rdx (- (+ (x-coord left) dx)) (x-coord right)))
+  "Return T if a node of LEFT intersects a node of RIGHT when the roots are separated by DX."
   (some (lambda (level)
-          (and (member 0 (mapcar #'x-coord (nodes-at-level level right)))
-               (member x (mapcar #'x-coord (nodes-at-level level left)))))
+          ;; if two points on different trees intersect
+          (intersection (mapcar #'x-coord (nodes-at-level level left))
+                        (mapcar (lambda (node) (+ rdx (x-coord node)))
+                          (nodes-at-level level right))))
         (range 1 (1- (min (height left) (height right))))))
 
 (defun rightmost (tree)
