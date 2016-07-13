@@ -15,6 +15,7 @@ and the y-coordinate its level."
 
 ;;; p65
 
+;; start-x can be eliminated by laying out the left branch first and adding distance to the x-coord of its root
 (defun layout2 (tree &optional (level 1) (distance (expt 2 (- (height tree) 2))) (start-x (start-x tree)))
   "Lay out binary tree so that the horizontal distance between each neighbor at a given level is constant."
   (and tree (tree-p tree)
@@ -33,4 +34,7 @@ and the y-coordinate its level."
 (defun layout3 (tree &optional (level 1))
   "Lay out binary tree so that the horizontal distance between each neighbor at a given level is constant and as small as
 possible without two nodes occupying the same position."
-  )
+  (and tree (tree-p tree)
+    ;; first lay out the two branches, then set distance so that the left and right branches don't cross
+    ;; lay out both the left and the right branch first with their leftmost leaves at x coordinate 0, then shift accordingly
+    ))
