@@ -143,8 +143,8 @@ Example:
 * (lfsort '((a b c) (d e) (f g h) (d e) (i j k l) (m n) (o)))
 ((i j k l) (o) (a b c) (f g h) (d e) (d e) (m n))"
   (let ((freqs (mapcar #'reverse (encode (mapcar #'length list))))) ;p10
-    (sort list (lambda (s1 s2) (< (assoc (length s1) freqs) 
-                                  (assoc (length s2) freqs))))))
+    (sort list (lambda (s1 s2) (< (cadr (assoc (length s1) freqs)) 
+                                  (cadr (assoc (length s2) freqs)))))))
 
 (defun sort (list pred)
   "Sort list according to the ordering defined by PRED, assumed analogous to <."
