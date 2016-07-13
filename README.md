@@ -5,10 +5,10 @@ The [99 Lisp problems](http://www.ic.unicamp.br/~meidanis/courses/mc336/2006s2/f
 
 The problems are broadly categorized into the following classes:
 
-* Lists
-* Arithmetic
-* Logic and Codes
-* Binary Trees
-* Multiway Trees
-* Graphs
-* Miscellaneous
+* Lists (p01-p28)
+* Arithmetic (p31-p41)
+* Logic and Codes (p46-p50)
+* Binary Trees (p54A-p69)
+* Multiway Trees (p70B-p73)
+* Graphs (p80-p89)
+* Miscellaneous (p90-p99)
