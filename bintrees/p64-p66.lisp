@@ -67,7 +67,7 @@ so that the trees don't intersect."
 
 (defun rightmost (tree)
   "Return the x coordinate of the rightmost node in TREE."
-  (first (sort (mapcar #'x-coord (nodes tree)) #'>)))
+  (first (sort (mapcar #'x-coord (inorder tree)) #'>)))
   
 ;;; Auxiliary position functions
 
