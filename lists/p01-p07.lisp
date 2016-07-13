@@ -1,6 +1,7 @@
 ;;;; Basic list operations
 
 ;;; p01
+
 (defun my-last (list)
   "Find the last box of a list.
 Example:
@@ -12,6 +13,7 @@ Example:
         list)))
         
 ;;; p02
+
 (defun my-but-last (list)
   "Find the last but one box of a list.
 Example:
@@ -23,6 +25,7 @@ Example:
         list)))
         
 ;;; p03
+
 (defun element-at (list k)
   "Find the K'th element of a list.
 The first element in the list is number 1.
@@ -33,6 +36,7 @@ C"
         (list (element-at (cdr list) (1- k)))))
         
 ;;; p04
+
 (defun my-length (list)
   "Find the number of elements of a list."
   (if list
@@ -40,6 +44,7 @@ C"
       0))
   
 ;;; p05
+
 (defun my-reverse (list &optional acc)
   "Reverse a list."
   (if list
@@ -47,12 +52,14 @@ C"
       acc))
       
 ;;; p06
+
 (defun palindrome-p (list)
   "Find out whether a list is a palindrome.
 A palindrome can be read forward or backward; e.g. (x a m a x)."
   (equal list (my-reverse list)))
   
 ;;; p07
+
 (defun my-flatten (list)
   "Flatten a nested list structure.
 Transform a list, possibly holding lists as elements into a `flat' list by replacing each list with its elements (recursively).
