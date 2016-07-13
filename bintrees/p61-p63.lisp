@@ -30,7 +30,7 @@
   "Collect the nodes at a given level in the tree.
 A node of a binary tree is at level N if the path from the root to the node has length N-1. The root node is at level 1."
   (if (= level 1)
-      (list tree)
+      (list (first tree))
       (append (nodes-at-level (1- level) (second tree))
               (nodes-at-level (1- level) (third tree)))))
 
