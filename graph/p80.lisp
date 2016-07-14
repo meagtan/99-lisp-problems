@@ -78,15 +78,12 @@
   "Return T if edge starts from node."
   (or (eq node (car edge))
       (if (not (graph-directed graph)) ;if undirected, check end
-          (eq node (cadr (nodes edge))))))
+          (eq node (end-node edge)))))
 
 (defun nodes (edge)
   "Return the nodes of an edge."
-  (cons (car edge)
-        (cons (if (consp (cdr edge))
-                  (cadr edge)
-                  (cdr edge))
-              NIL)))
+  (list (car edge)
+        (end-node edge)))
 
 (defun edge-p (edge)
   "Return T if the given expression is a valid edge."
@@ -106,3 +103,17 @@
                                       (eq n (car e))))))))
         (or (atom edge-end)
             (cadr edge-end))))))
+
+(defun edges (graph node)
+  "Return all edges in graph that start from node."
+  (mapcar (lambda (x) (cons node x)) (cdr (assoc node (adjacency-list graph)))))
+
+(defun start-node (edge)
+  "Return the starting node of an edge."
+  (car edge))
+
+(defun end-node (edge)
+  "Return the ending node of an edge."
+  (if (consp (cdr edge))
+      (cadr edge)
+      (cdr edge)))
