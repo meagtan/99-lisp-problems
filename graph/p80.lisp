@@ -117,3 +117,6 @@
   (if (consp (cdr edge))
       (cadr edge)
       (cdr edge)))
+
+(defun empty-p (graph)
+  (null (graph-nodes graph)))
