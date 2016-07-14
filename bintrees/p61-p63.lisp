@@ -36,7 +36,7 @@ A node of a binary tree is at level N if the path from the root to the node has 
 
 (defun level-order (tree)
   "Collect the nodes of TREE ordered by level, using NODES-AT-LEVEL."
-  (mappend (lambda (level) (nodes-at-level level tree))
+  (mapcan (lambda (level) (nodes-at-level level tree))
     (range 1 (height tree))))
 
 (defun level-order-direct (tree)
