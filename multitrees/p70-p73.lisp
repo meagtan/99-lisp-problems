@@ -53,7 +53,7 @@ is the total sum of the path lengths from the root to all nodes of the tree."
 
 (defun bottom-up (tree)
   "Sequence the nodes of the given tree bottom up."
-  (nconc (mappend #'bottom-up (cdr tree)) (list (car tree))))
+  (nconc (mapcan #'bottom-up (cdr tree)) (list (car tree))))
 
 ;;; p73
 
