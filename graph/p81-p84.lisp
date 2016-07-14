@@ -4,20 +4,20 @@
 
 (defun paths (graph a b &optional visited)
   "Return all acyclic paths from A to B."
-  (mappend (lambda (edge &aux (n (end-node edge)))
-             (unless (member n visited)
-               (if (eq n b)
-                   (list edge)
-                   (cons edge (paths graph n b (cons a visited))))))
-           (edges graph a)))
+  (mapcan (lambda (edge &aux (n (end-node edge)))
+            (unless (member n visited)
+              (if (eq n b)
+                  (list edge)
+                  (cons edge (paths graph n b (cons a visited))))))
+          (edges graph a)))
 
 ;;; p82
 
 (defun cycles (graph a)
   "Return all cycles starting and ending in A."
-  (mappend (lambda (edge &aux (n (end-node edge)))
-             (cons edge (paths graph n a)))
-           (edges graph a)))
+  (mapcan (lambda (edge &aux (n (end-node edge)))
+            (cons edge (paths graph n a)))
+          (edges graph a)))
 
 ;;; p83
 
