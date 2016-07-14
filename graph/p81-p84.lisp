@@ -21,16 +21,17 @@
 
 ;;; p83
 
+;; can this be simplified? what can one say about the different trees calculated?
 (defun s-trees (graph &optional visited-ns visited-es)
   "Generate all spanning trees of GRAPH, where trees are represented as lists of edges."
   (munion (lambda (node)
              (munion (lambda (edge) 
                         (unless (subsetp (nodes edge) visited-ns)
-                          (munion (lambda (tree) (cons edge tree))
+                          (mapcar (lambda (tree) (cons edge tree))
                             (s-trees graph (cons node visited-ns)
                                            (cons edge visited-es)))))
                (set-difference (edges graph node) visited-es)))
-           (graph-nodes graph)))
+          (set-difference (graph-nodes graph) visited-ns)))
 
 (defun s-tree-p (graph tree)
   "Return T if TREE is a spanning tree of GRAPH."
@@ -47,3 +48,18 @@
 (defun munion (function list &rest lists)
   "Return the union of the application of FUNCTION to successive elements of LIST."
   (reduce #'union (apply #'mapcar function list lists)))
+
+;;; p84
+
+(defun ms-trees (graph &optional visited-ns visited-es)
+  "Return minimal spanning trees of GRAPH."
+  (munion (lambda (node 
+                   &aux (edges (remove-if (lambda (edge)
+                                            (subsetp (nodes edge) visited-ns))
+                                  (sort #'edge< (set-difference (edges graph node) visited-es)))))
+             ;; only pick the edge with the least weight
+             (when edges
+                (mapcar (lambda (tree) (cons (first edges) tree))
+                  (ms-trees graph (cons node visited-ns)
+                                  (cons (first edges) visited-es)))))
+          (set-difference (graph-nodes graph) visited-ns)))
