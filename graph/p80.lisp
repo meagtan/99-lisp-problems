@@ -120,3 +120,10 @@
 
 (defun empty-p (graph)
   (null (graph-nodes graph)))
+
+(defun subgraph-p (graph1 graph2)
+  "Return T if GRAPH1 is a subgraph of GRAPH2."
+  (and (graph-p graph1)
+       (graph-p graph2)
+       (subsetp (graph-nodes graph1) (graph-nodes graph2))
+       (subsetp (graph-edges graph1) (graph-edges graph2))))
