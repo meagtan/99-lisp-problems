@@ -127,3 +127,7 @@
        (graph-p graph2)
        (subsetp (graph-nodes graph1) (graph-nodes graph2))
        (subsetp (graph-edges graph1) (graph-edges graph2))))
+
+(defun graph-equal-p (graph1 graph2)
+  "Return T if GRAPH1 and GRAPH2 are the same graph."
+  (null (set-exclusive-or (adjacency-list graph1) (adjacency-list graph2))))
