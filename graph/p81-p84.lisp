@@ -63,3 +63,8 @@
                   (ms-trees graph (cons node visited-ns)
                                   (cons (first edges) visited-es)))))
           (set-difference (graph-nodes graph) visited-ns)))
+
+(defun edge< (edge1 edge2)
+  (or (atom (cdr edge1))
+      (and (consp (cdr edge2))
+           (< (third edge1) (third edge2)))))
