@@ -16,7 +16,7 @@
 (defun cycles (graph a)
   "Return all cycles starting and ending in A."
   (mapcan (lambda (edge &aux (n (end-node edge)))
-            (cons edge (paths graph n a)))
+            (cons edge (remove (list edge) (paths graph n a) :test #'equal)))
           (edges a graph)))
 
 ;;; p83
