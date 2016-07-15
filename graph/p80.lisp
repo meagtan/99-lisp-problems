@@ -33,14 +33,12 @@
 (defun readable-list (graph)
   "Return a list of edges and lone nodes of a graph."
   (append (graph-edges graph)
-          (set-difference (graph-nodes graph)
-            (mapcan #'nodes (graph-edges graph)))))
+          (lone-nodes graph)))
 
-(defun readable-pair (graph)
-  "Return a pair of lists of edges and lone nodes of a graph."
-  (list (graph-edges graph)
-        (set-difference (graph-nodes graph)
-          (mapcan #'nodes (graph-edges graph)))))
+(defun lone-nodes (graph)
+  "Return a list of nodes of a graph not connected to any edge."
+  (set-difference (graph-nodes graph)
+    (mapcan #'nodes (graph-edges graph))))
 
 (defun ud-adjacency-graph (adj-list &aux (nodes (mapcar #'car adj-list)))
   "Make undirected graph from the given adjacency list."
