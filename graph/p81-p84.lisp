@@ -9,7 +9,7 @@
               (if (eq n b)
                   (list edge)
                   (cons edge (paths graph n b (cons a visited))))))
-          (edges graph a)))
+          (edges a graph)))
 
 ;;; p82
 
@@ -17,7 +17,7 @@
   "Return all cycles starting and ending in A."
   (mapcan (lambda (edge &aux (n (end-node edge)))
             (cons edge (paths graph n a)))
-          (edges graph a)))
+          (edges a graph)))
 
 ;;; p83
 
@@ -30,7 +30,7 @@
                           (mapcar (lambda (tree) (cons edge tree))
                             (s-trees graph (cons node visited-ns)
                                            (cons edge visited-es)))))
-               (set-difference (edges graph node) visited-es)))
+               (set-difference (edges node graph) visited-es)))
           (set-difference (graph-nodes graph) visited-ns)))
 
 (defun s-tree-p (graph tree)
@@ -56,7 +56,7 @@
   (munion (lambda (node 
                    &aux (edges (remove-if (lambda (edge)
                                             (subsetp (nodes edge) visited-ns))
-                                  (sort #'edge< (set-difference (edges graph node) visited-es)))))
+                                  (sort #'edge< (set-difference (edges node graph) visited-es)))))
              ;; only pick the edge with the least weight
              (when edges
                 (mapcar (lambda (tree) (cons (first edges) tree))
