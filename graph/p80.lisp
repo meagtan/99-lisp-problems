@@ -130,6 +130,11 @@
       (cadr edge)
       (cdr edge)))
 
+(defun other-node (edge node)
+  "If NODE is a node of EDGE, return the other node of EDGE."
+  (cond ((eq node (start-node edge)) (end-node edge))
+        ((eq node (end-node edge)) (start-node edge))))
+
 (defun empty-p (graph)
   (null (graph-nodes graph)))
 
