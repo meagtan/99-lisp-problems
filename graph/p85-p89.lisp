@@ -78,24 +78,36 @@
         ((null nodes) res)
         ;; color all nodes not connected to node, including node itself, with color
         ;; and remove them from the list of sorted nodes
-        (delete-if (lambda (n)
+        (setf nodes
+          (remove-if (lambda (n)
                      (and (not (or (edge node n graph) (edge n node graph)))
                           (rplacd (assoc n res) color)))
-          nodes))))
+            nodes))))
 
 ;;; p87
 
 (defun depth-traverse (graph start)
   "Traverse GRAPH depth-first, starting from START."
   (do* ((stack (list start) (cdr stack))
-        (res stack)
-        (node (car stack) (car stack))
-        (neighbors (neighbors node graph) (neighbors node graph)))
+        (res stack))
        ((null stack) res)
-       (dolist (n neighbors)
+       (dolist (n (neighbors (car stack) graph))
+         ;; if not already visited, add n to stack (and thereby res)
          (unless (member n res)
-           ;; if not already visited, add n to stack (and thereby res)
-           (rplacd stack (cons n (cdr stack)))))))
+           (push (cdr stack) n)))))
+
+;; returns spanning tree of connected component of start
+(defun depth-traverse-edges (graph start)
+  "Return list of unweighted edges traversed while going through GRAPH depth-first, starting from START."
+  (do* ((stack (list start) (cdr stack))
+        (visited stack)
+        res
+        (node (car stack) (car stack)))
+       ((null stack) (nreverse res))
+       (dolist (n (neighbors node graph))
+         (unless (member n visited)
+           (push (cons node n) res)
+           (push (cdr stack) n)))))
 
 ;;; p88
 
@@ -107,3 +119,30 @@
       (dolist (n (depth-traverse graph (car nodes)))
          (setf nodes (remove n nodes))
          (push n res))))
+
+;;; p89
+
+(defun bipartite-p (graph &aux (colors (mapcar #'list (graph-nodes graph)))) ;initialize for assignment
+  "If GRAPH is bipartite, return its two parts in a dotted pair; else return NIL."
+  (labels ((next (color) (- 3 color)))
+    (dolist (comp (connected-components graph))
+      ;; try to color nodes in comp alternating between 1 and 2
+      (rplacd (assoc (car comp) colors) 1)
+      (dolist (e (depth-traverse-edges graph (car comp)))
+        (assert (and (cdr (assoc (car e) colors))         ;since comp is traversed depth-first
+                     (not (cdr (assoc (cdr e) colors))))) ;since e is drawn from a tree, (cdr e) must not be already visited
+        (rplacd (assoc (cdr e) colors)
+          (next (assoc (car e) colors)))
+        ;; look through edges around e
+        (dolist (edge (edges (cdr e) graph))
+          ;; if there is a coloring conflict, return NIL
+          (if (eq (assoc (start-node edge) colors)
+                  (assoc (end-node   edge) colors))
+              (return-from 'BIPARTITE-P))))))
+  ;; partition nodes based on their coloring
+  (let ((res (list NIL)))
+    (dolist (coloring colors res)
+      (case (cdr coloring)
+        (1 (push (car coloring) (car res)))
+        (2 (push (car coloring) (cdr res)))
+        (T (return-from 'BIPARTITE-P)))))) ;if some node is left uncolored
