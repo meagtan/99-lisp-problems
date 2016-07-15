@@ -58,7 +58,7 @@
                              (degree (remove start (nodes e)) graph2))))
                    edges)))
 
-;; p86
+;;; p86
 
 (defun degree (node graph)
   "Return the degree of node in graph."
@@ -69,7 +69,7 @@
   (sort (graph-nodes graph) #'> :key (lambda (node) (degree node graph))))
 
 (defun color (graph &aux (res (mapcar #'list (graph-nodes graph))) (counter 0))
-  "Return alist representing a proper coloring of the vertices of the given graph, colors represented as a positive integer."
+  "Return alist representing a proper coloring of the nodes of the given graph, colors represented as a positive integer."
   (labels ((new-color () (incf counter)))
     ;; Welsh-Powell algorithm
     (do ((nodes (sorted-nodes graph))
@@ -82,3 +82,17 @@
                      (and (not (or (edge node n graph) (edge n node graph)))
                           (rplacd (assoc n res) color)))
           nodes))))
+
+;;; p87
+
+(defun depth-traverse (graph start)
+  "Traverse GRAPH depth-first, starting from START."
+  (do* ((stack (list start) (cdr stack))
+        (res stack)
+        (node (car stack) (car stack))
+        (neighbors (neighbors node graph) (neighbors node graph)))
+       ((null stack) res)
+       (dolist (n neighbors)
+         (unless (member n res)
+           ;; if not already visited, add n to stack (and thereby res)
+           (rplacd stack (cons n (cdr stack)))))))
