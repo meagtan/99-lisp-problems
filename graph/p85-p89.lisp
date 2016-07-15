@@ -57,3 +57,28 @@
                           (= (degree end graph1)
                              (degree (remove start (nodes e)) graph2))))
                    edges)))
+
+;; p86
+
+(defun degree (node graph)
+  "Return the degree of node in graph."
+  (length (cdr (assoc node (adjacency-list graph)))))
+
+(defun sorted-nodes (graph)
+  "Return list of nodes of graph, sorted according to decreasing degree."
+  (sort (graph-nodes graph) #'> :key (lambda (node) (degree node graph))))
+
+(defun color (graph &aux (res (mapcar #'list (graph-nodes graph))) (counter 0))
+  "Return alist representing a proper coloring of the vertices of the given graph, colors represented as a positive integer."
+  (labels ((new-color () (incf counter)))
+    ;; Welsh-Powell algorithm
+    (do ((nodes (sorted-nodes graph))
+         (node (car nodes) (car nodes))
+         (color (new-color) (new-color)))
+        ((null nodes) res)
+        ;; color all nodes not connected to node, including node itself, with color
+        ;; and remove them from the list of sorted nodes
+        (delete-if (lambda (n)
+                     (and (not (or (edge node n graph) (edge n node graph)))
+                          (rplacd (assoc n res) color)))
+          nodes))))
