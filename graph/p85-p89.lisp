@@ -96,3 +96,14 @@
          (unless (member n res)
            ;; if not already visited, add n to stack (and thereby res)
            (rplacd stack (cons n (cdr stack)))))))
+
+;;; p88
+
+(defun connected-components (graph)
+  "Return list of connected components of GRAPH."
+  (do ((nodes (sorted-nodes graph)) ;reach nodes with highest degree first
+       res)
+      ((null nodes) res)
+      (dolist (n (depth-traverse graph (car nodes)))
+         (setf nodes (remove n nodes))
+         (push n res))))
