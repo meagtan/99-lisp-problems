@@ -108,11 +108,11 @@
         (or (atom edge-end)
             (cadr edge-end))))))
 
-(defun edges (graph node)
+(defun edges (node graph)
   "Return all edges in graph that start from node."
   (mapcar (lambda (x) (cons node x)) (cdr (assoc node (adjacency-list graph)))))
 
-(defun neighbors (graph node)
+(defun neighbors (node graph)
   "Return all neighbors of node in graph."
   (mapcar (lambda (end)
             (if (atom end)
