@@ -36,6 +36,12 @@
           (set-difference (graph-nodes graph)
             (mapcan #'nodes (graph-edges graph)))))
 
+(defun readable-pair (graph)
+  "Return a pair of lists of edges and lone nodes of a graph."
+  (list (graph-edges graph)
+        (set-difference (graph-nodes graph)
+          (mapcan #'nodes (graph-edges graph)))))
+
 (defun ud-adjacency-graph (adj-list &aux (nodes (mapcar #'car adj-list)))
   "Make undirected graph from the given adjacency list."
   (make-ud-graph
