@@ -112,6 +112,14 @@
   "Return all edges in graph that start from node."
   (mapcar (lambda (x) (cons node x)) (cdr (assoc node (adjacency-list graph)))))
 
+(defun neighbors (graph node)
+  "Return all neighbors of node in graph."
+  (mapcar (lambda (end)
+            (if (atom end)
+                end
+                (car end)))
+          (cdr (assoc node (adjacency-list graph)))))
+
 (defun start-node (edge)
   "Return the starting node of an edge."
   (car edge))
