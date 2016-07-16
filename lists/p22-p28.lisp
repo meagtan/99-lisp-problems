@@ -9,7 +9,7 @@ Example:
 * (range 4 9)
 (4 5 6 7 8 9)"
   (cond ((= i k) (list i))
-        ((< i k)
+        ((< k i)
          (reverse (range k i)))
         (T
          (cons i (range (1+ i) k)))))
