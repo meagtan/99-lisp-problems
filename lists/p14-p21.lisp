@@ -73,7 +73,7 @@ Example:
   (when list
     (if (= i 1)
         (if (= k 1)
-            list
+            (list (car list))
             (cons (car list)
                   (slice (cdr list) 1 (1- k))))
         (slice (cdr list) (1- i) (1- k)))))
