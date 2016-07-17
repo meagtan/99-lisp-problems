@@ -10,7 +10,11 @@ Example: With the list (2 3 5 7 11) we can form the equations (2 - 3 + 5 + 7 = 1
     (remove-duplicates
       (mapcar #'prefix-to-infix
         (mapcan (lambda (i &aux (sides (split numbers i))) ;p17
-                  (make-equations (car sides) (cadr sides)))
+                  ;; consider negations as well (reducing them later is much more cumbersome)
+                  (append (make-equations (car sides) (cadr sides))
+                          (make-equations (cons (- (caar sides)) (cdar sides))
+                                          (cons (- (caadr sides)) (cdadr sides)))
+                          ))
           (range 1 (1- (length numbers))))) ;p22
       :test #'equal)))
 
@@ -21,7 +25,7 @@ Example: With the list (2 3 5 7 11) we can form the equations (2 - 3 + 5 + 7 = 1
                 (mapcar (lambda (rhs-expr)
                           (list '= lhs-expr rhs-expr))
                         ;; remove all but the expressions whose value is the same as lhs-expr
-                        (remove lhs-expr (make-exprs rhs)
+                        (remove (eval lhs-expr) (make-exprs rhs)
                           :test-not #'eql
                           :key #'eval)))
               (make-exprs lhs))
@@ -29,7 +33,7 @@ Example: With the list (2 3 5 7 11) we can form the equations (2 - 3 + 5 + 7 = 1
                 (mapcar (lambda (lhs-expr)
                           (list '= lhs-expr rhs-expr))
                         ;; remove all but the expressions whose value is the same as rhs-expr
-                        (remove rhs-expr (make-exprs lhs)
+                        (remove (eval rhs-expr) (make-exprs lhs)
                           :test-not #'eql
                           :key #'eval)))
               (make-exprs rhs))))
@@ -37,7 +41,7 @@ Example: With the list (2 3 5 7 11) we can form the equations (2 - 3 + 5 + 7 = 1
 (defun make-exprs (numbers)
   "Generate all expressions formed by inserting operators to NUMBERS."
   (if (= (length numbers) 1)
-      (apply-unary-ops (car numbers))
+      numbers ;(apply-unary-ops (car numbers))
       ;; split numbers, combine each expression from either partition using a binary operator
       (loop for i from 1 to (1- (length numbers))
             for partition = (split numbers i) append 
@@ -65,6 +69,7 @@ Example: With the list (2 3 5 7 11) we can form the equations (2 - 3 + 5 + 7 = 1
 
 (defparameter *unary-ops*  '(-) "Unary operators.")
 (defparameter *binary-ops* '(= + - * /) "Binary operators, sorted by precedence.")
+(defparameter *op-complements* '((-  +) (/  *)) "Match binary operators to the operators they are a complement of.")
 
 (defun prefix-to-infix (expr)
   "Convert a Lisp arithmetic expression in Polish notation into a list of numbers and operators in infix notation.
@@ -85,7 +90,12 @@ Example: (+ (* 3 5) (- 2 7)) => (3 * 5 + 2 - 7); (* (+ 3 5) (- 2 7)) => ([ 3 + 5
 
 (defun precedes-p (op1 op2 lhs)
   "Return T if an expression of OP2 can be written without parentheses at the LHS/RHS of an expression of OP1."
-  )
+  (or (< (position op1 *binary-ops*)
+         (position op2 *binary-ops*))
+      (if (assoc op1 *op-complements*)
+          (and lhs
+               (member op2 (assoc op1 *op-complements*)))
+          (eq op1 op2))))
 
 (defun unary-p (expr)
   "Return T if EXPR is the application of a unary operator."
