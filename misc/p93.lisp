@@ -2,7 +2,7 @@
 
 (defun find-equations (numbers)
   "Given a list of integer numbers, find ways of inserting operators such that the result is a correct equation. 
-Example: With the list of numbers [2,3,5,7,11] we can form the equations 2-3+5+7 = 11 or 2 = (3*5+7)/11 (and ten others!)."
+Example: With the list of numbers (2 3 5 7 11) we can form the equations 2-3+5+7 = 11 or 2 = [3*5+7]/11 (and ten others)."
   ;; break down position of = sign
   (when numbers
     (mapcan (lambda (i &aux (sides (split numbers i))) ;p17
@@ -27,7 +27,31 @@ Example: With the list of numbers [2,3,5,7,11] we can form the equations 2-3+5+7
   "Generate all expressions formed by inserting operators to NUMBERS."
   (if (= (length numbers) 1)
       numbers
-      ;; try out each operator, insert operator after (car numbers) and, for operators other than +, also start parenthesis
-      ;; close parenthesis before * or /
-      ))
-      
+      ;; go through each operator
+      (mapcar (lambda (op &aux exprs)
+                ;; add first number and operator to expressions
+                (setf exprs (mapcar (lambda (expr)
+                                      (cons (car numbers)
+                                            (cons op expr)))
+                              (make-exprs (cdr numbers))))
+                (remove-duplicates
+                  (append exprs
+                          ;; add [ after op and ] at each index after a number
+                          (mapcan (lambda (expr)
+                                    (loop for i from 2 to (1- (length expr))
+                                      if (numberp (nth i expr))
+                                      collect 
+                                        (insert-at '[
+                                          (insert-at '] expr (+ i 2))
+                                          3)))
+                            exprs))
+                  :test #'equal :key #'remove-parentheses))
+        '(+ - * /))))
+
+(defun value-of (expr)
+  "Return the integer value of an arithmetic expression represented as a list, e.g. (2 + [ 5 - 3 ] * 7) => 16."
+  )
+
+(defun remove-parentheses (expr)
+  "Without changing numbers, remove parentheses in an expression as much as possible, including when they are near + and -."
+  )
