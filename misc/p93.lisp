@@ -69,10 +69,23 @@ Example: With the list (2 3 5 7 11) we can form the equations (2 - 3 + 5 + 7 = 1
 (defun prefix-to-infix (expr)
   "Convert a Lisp arithmetic expression in Polish notation into a list of numbers and operators in infix notation.
 Example: (+ (* 3 5) (- 2 7)) => (3 * 5 + 2 - 7); (* (+ 3 5) (- 2 7)) => ([ 3 + 5 ] * [ 2 - 7 ])."
-  
-  )
+  (cond ((numberp expr) (list expr))
+        ((unary-p expr) expr)
+        ((binary-p expr)
+         (append (infix-arg (first expr) (second expr))
+                 (cons (first expr)
+                   (infix-arg (first expr) (third expr))))))
+
+(defun infix-arg (op expr &aux (res (prefix-to-infix expr)))
+  "Optionally add parentheses to the infix notation of EXPR, as an argument to OP."
+  (if (or (not (binary-p expr))
+          ;; compare precedence
+          (< (position op *binary-ops*)
+             (position (first expr) *binary-ops*)))
+      res
+      (cons '[ (append res (list '])))))
 
 (defun infix-to-prefix (expr)
   "Convert an infix arithmetic expression, expressed as a list of numbers, operators and brackets, into a Lisp expression."
-  
+  NIL
   )
