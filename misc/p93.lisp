@@ -37,19 +37,19 @@ Example: With the list (2 3 5 7 11) we can form the equations (2 - 3 + 5 + 7 = 1
 (defun make-exprs (numbers)
   "Generate all expressions formed by inserting operators to NUMBERS."
   (if (= (length numbers) 1)
-      (unary-ops (car numbers))
+      (apply-unary-ops (car numbers))
       ;; split numbers, combine each expression from either partition using a binary operator
       (loop for i from 1 to (1- (length numbers))
             for partition = (split numbers i) append 
           (loop for arg1 in (make-exprs (car partition)) append 
               (loop for arg2 in (make-exprs (cdr partition)) collect 
-                (binary-ops arg1 arg2))))))
+                (apply-binary-ops arg1 arg2))))))
 
-(defun unary-ops (arg1)
+(defun apply-unary-ops (arg1)
   "Apply unary operations to argument."
   (list arg1 (list '- arg1)))
 
-(defun binary-ops (arg1 arg2)
+(defun apply-binary-ops (arg1 arg2)
   "Apply binary operations to arguments."
   (loop for op in '(+ - * /)
     if (apply-op op arg1 arg2)
@@ -62,6 +62,9 @@ Example: With the list (2 3 5 7 11) we can form the equations (2 - 3 + 5 + 7 = 1
 
 ;;; An aside: converting from lispy arithmetic expressions to infix notation
 ;;; Not necessary for the purpose of the program, as the order of numbers stays the same, but truer to the original problem.
+
+(defparameter *unary-ops*  '(-) "Unary operators.")
+(defparameter *binary-ops* '(+ - * / =) "Binary operators, sorted by precedence.")
 
 (defun prefix-to-infix (expr)
   "Convert a Lisp arithmetic expression in Polish notation into a list of numbers and operators in infix notation.
