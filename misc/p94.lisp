@@ -13,11 +13,20 @@
   (if (null nodes-left)
       (list (make-graph nodes edges)) ;p80
       (mapcan (lambda (comb)
-                ;; try to connect (car nodes) to every element of COMB
-                ;; if any element of COMB has degree >= DEG, return NIL
+                ;; try to connect (car nodes-left) to every element of COMB
+                ;; if any element of COMB has degree >= DEG or is already connected to (car nodes-left), return NIL
                 ;; otherwise add the created edges to EDGES and call make-graphs
-                )
-        (combinations (cdr nodes) deg))))
+                (and (every (lambda (n) 
+                              (< (degree-from-edges n edges) deg)) 
+                       comb)
+                     (every (lambda (e) 
+                              (set-difference (list (car nodes-left))
+                                (set-difference (nodes e) comb)))
+                       edges)
+                     (make-graph deg nodes (cdr nodes-left) 
+                       (append (mapcar (lambda (n) (cons (car nodes-left) n)) comb) edges))))
+        (combinations (cdr nodes-left) 
+                      (- deg (degree-from-edges (car nodes-left) edges))))))
 
 (defun combinations (set k)
   "Return all K-element subsets of SET."
@@ -26,3 +35,9 @@
         (T (append (mapcar (lambda (comb) (cons (car set) comb))
                      (combinations (cdr set) (1- k)))
                    (combinations (cdr set) k)))))
+
+(defun degree-from-edges (node edges)
+  "Calculate the degree of NODE given the list of edges."
+  (loop for e in edges
+    if (member node (nodes e))
+    sum 1))
