@@ -109,7 +109,38 @@ Example: (+ (* 3 5) (- 2 7)) => (3 * 5 + 2 - 7); (* (+ 3 5) (- 2 7)) => ([ 3 + 5
        (= (length expr) 3)
        (member (first expr) *binary-ops*)))
 
-(defun infix-to-prefix (expr)
+;; not necessary for the main function of the problem, can still be used for testing etc.
+(defun infix-to-prefix (expr &aux output operators)
   "Convert an infix arithmetic expression, expressed as a list of numbers, operators and brackets, into a Lisp expression."
-  NIL
-  )
+  ;; shunting yard algorithm, adjusted for Lisp expressions
+  (do* ((expr expr (cdr expr))
+        (item (car expr) (car expr)))
+       ((null expr))
+       (terpri)
+       (print item)
+       (print output)
+       (print operators)
+       (cond ((numberp item) (push item output))
+             ((member item *binary-ops*)
+              (do () 
+                  ((or (null operators)
+                       (not (member (car operators) *binary-ops*))
+                       (precedes-p (car operators) item T)))
+                  ;; apply (pop operators) to output
+                  (let* ((arg2 (pop output)) (arg1 (pop output)))
+                    (push (list (pop operators) arg1 arg2) output)))
+              (push item operators))
+             ((eq item '[)
+              (push item operators))
+             ((eq item '])
+              (do ()
+                  ((eq (car operators) '[))
+                  ;; apply (pop operators) to output
+                  (let* ((arg2 (pop output)) (arg1 (pop output)))
+                    (push (list (pop operators) arg1 arg2) output)))
+              (pop operators))))
+  ;; load operators into output
+  (do ()
+      ((null operators) (car output))
+      (let* ((arg2 (pop output)) (arg1 (pop output)))
+        (push (list (pop operators) arg1 arg2) output))))
