@@ -80,3 +80,19 @@ Example: \"eleven hundred\" for 1100, instead of \"one thousand one hundred\".")
                   (format nil "~r" (* 10 d))))
     (range 0 9)) ;p22
   "Alist mapping every digit D to the word representation of D, 1D and D0.")
+
+;;; p96
+
+(defun identifier-p (string &aux (list (coerce string 'list)))
+  "Return T if STRING represents a valid identifier, represented by the quasi-regex syntax \"<alpha>*(_?[<alpha>|<digit>])*\"."
+  (labels ((rest-p (list) 
+             (or (null list)
+                 (and (alphanumericp (car list))
+                      (rest-p (cdr list)))
+                 (and (char= (car list) #\_)
+                      (cdr list)
+                      (alphanumericp (cadr list))
+                      (rest-p (cddr list))))))
+    (and list
+         (alpha-char-p (car list))
+         (rest-p (cdr list)))))
