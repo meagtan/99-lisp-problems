@@ -111,13 +111,19 @@ and a unique end node having out-degree 0 and in-degree 1, and directed, labeled
 
 (defun start-state (syntax-graph)
   "Return the starting state of a given syntax diagram, if any."
-  
-  )
+  (let ((start-list (remove 0
+                      (remove 1 (graph-nodes syntax-graph) :test-not #'= :key #'out-degree)
+                      :test-not #'= :key #'in-degree)))
+    (when (= (length start-list) 1)
+      (car start-list))))
 
 (defun end-state (syntax-graph)
   "Return the ending state of a given syntax diagram, if any."
-  
-  )
+  (let ((end-list (remove 1
+                      (remove 0 (graph-nodes syntax-graph) :test-not #'= :key #'out-degree)
+                      :test-not #'= :key #'in-degree)))
+    (when (= (length end-list) 1)
+      (car end-list))))
 
 (defun predicate-parser (pred)
   "Generate a parser predicate for strings from a predicate for characters."
@@ -145,3 +151,16 @@ and a unique end node having out-degree 0 and in-degree 1, and directed, labeled
         string)))
 
 (defconstant id-parser #'identity "A parser predicate that does nothing.")
+
+(defun parser-union (arg1 arg2)
+  "Return the union of two parsers."
+  (lambda (string &aux (res (funcall arg1 string)))
+    (if res
+        res
+        (funcall arg2 string))))
+
+(defun parser-compose (arg1 arg2)
+  "Return the composite of two parsers."
+  (lambda (string &aux (res (funcall arg1 string)))
+    (when res
+      (funcall arg2 res))))
