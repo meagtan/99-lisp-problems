@@ -100,14 +100,43 @@ Example: \"eleven hundred\" for 1100, instead of \"one thousand one hundred\".")
 ;; Extending the above predicate for general syntax diagrams as in the problem
 
 ;; A syntax diagram can be represented as a directed graph, expressed in readable list form, that transitions from state to
-;;  state based on a parser predicate that returns the rest of the given sequence if it is true, and NIL otherwise.
+;;  state based on a recognizer predicate that returns the rest of the given sequence if it is true, and NIL otherwise.
 
-(defun make-parser (syntax-list &aux (graph (d-readable-graph syntax-list)))
-  "Create a parser predicate from the given list of directed edges of a syntax diagram. 
+(defun alt-identifier-p (string)
+  "Alternate implementation of IDENTIFIER-P using general syntax diagrams."
+  (funcall (recognizer-predicate
+             (make-recognizer
+               `((start a ,(predicate-recognizer #'alpha-char-p))
+                 (a b ,(at-most-one (lambda (x) (eq x #\_))))
+                 (b end ,(predicate-recognizer #'alphanumericp))
+                 (start end ,id-recognizer))))
+           string))
+
+(defun make-recognizer (syntax-list &aux (graph (d-readable-graph syntax-list))
+                                         (start (start-state graph))
+                                         (end (end-state graph)))
+  "Create a recognizer predicate from the given list of directed edges of a syntax diagram. 
 A valid syntax diagram is composed of nodes, with a unique start node having out-degree 1 and in-degree 0,
-and a unique end node having out-degree 0 and in-degree 1, and directed, labeled edges with parser predicates as labels."
-  
-  )
+and a unique end node having out-degree 0, and directed, labeled edges with recognizer predicates as labels."
+  (and start end
+    (lambda (string)
+      ;; breadth-first graph search
+      (do ((node start)
+           (string string)
+           queue
+           visited)
+          ((eq node end) ;is this the right ending condition?
+           string)
+          (let ((added (loop for e in (edges node graph)
+                             for res = (funcall (edge-weight e) string)
+                         if (not (member (end-node e) visited))
+                         if res
+                         collect (cons (end-node e) res))))
+            (setf queue   (append queue added))
+            (setf visited (append visited added)))
+          (let ((pair (pop queue)))
+            (setf node (car pair)
+                  string (cdr pair)))))))
 
 (defun start-state (syntax-graph)
   "Return the starting state of a given syntax diagram, if any."
@@ -119,48 +148,46 @@ and a unique end node having out-degree 0 and in-degree 1, and directed, labeled
 
 (defun end-state (syntax-graph)
   "Return the ending state of a given syntax diagram, if any."
-  (let ((end-list (remove 1
-                      (remove 0 (graph-nodes syntax-graph) :test-not #'= :key #'out-degree)
-                      :test-not #'= :key #'in-degree)))
+  (let ((end-list (remove 0 (graph-nodes syntax-graph) :test-not #'= :key #'out-degree)))
     (when (= (length end-list) 1)
       (car end-list))))
 
-(defun predicate-parser (pred)
-  "Generate a parser predicate for strings from a predicate for characters."
+(defun predicate-recognizer (pred)
+  "Generate a recognizer predicate for strings from a predicate for characters."
   (lambda (string)
     (when (funcall pred (char string 0))
           (subseq string 1))))
 
-(defun parser-predicate (parser)
-  "Generate a predicate that tests for exactly the strings recognized by PARSER."
-  (lambda (string &aux (res (funcall parser string)))
+(defun recognizer-predicate (recognizer)
+  "Generate a predicate that tests for exactly the strings recognized by RECOGNIZER."
+  (lambda (string &aux (res (funcall recognizer string)))
     (and res (zerop (length res)))))
 
 (defun at-most-one (pred)
-  "Generate a parser predicate that checks at most one instance for the given predicate for characters."
+  "Generate a recognizer predicate that checks at most one instance for the given predicate for characters."
   (lambda (string)
     (if (funcall pred (char string 0))
         (subseq string 1)
         string)))
 
 (defun kleene-star (pred)
-  "Generate a parser predicate that checks any number of instances for the given predicate for characters."
+  "Generate a recognizer predicate that checks any number of instances for the given predicate for characters."
   (lambda (string)
     (if (funcall pred (char string 0))
         (funcall (kleene-star pred) (subseq string 1))
         string)))
 
-(defconstant id-parser #'identity "A parser predicate that does nothing.")
+(defconstant id-recognizer #'identity "A recognizer predicate that does nothing.")
 
-(defun parser-union (arg1 arg2)
-  "Return the union of two parsers."
+(defun recognizer-union (arg1 arg2)
+  "Return the union of two recognizers."
   (lambda (string &aux (res (funcall arg1 string)))
     (if res
         res
         (funcall arg2 string))))
 
-(defun parser-compose (arg1 arg2)
-  "Return the composite of two parsers."
+(defun recognizer-compose (arg1 arg2)
+  "Return the composition of two recognizers."
   (lambda (string &aux (res (funcall arg1 string)))
     (when res
       (funcall arg2 res))))
