@@ -62,7 +62,20 @@
 
 (defun degree (node graph)
   "Return the degree of node in graph."
+  (if (graph-directed graph)
+      (out-degree node graph)
+      (+ (out-degree node graph)
+         (in-degree  node graph))))
+
+(defun out-degree (node graph)
+  "Return the out-degree of node in graph."
   (length (cdr (assoc node (adjacency-list graph)))))
+
+(defun in-degree (node graph)
+  "Return the in-degree of node in graph."
+  (loop for e in (graph-edges graph)
+        if (eq node (end-node e))
+        sum 1))
 
 (defun sorted-nodes (graph)
   "Return list of nodes of graph, sorted according to decreasing degree."
