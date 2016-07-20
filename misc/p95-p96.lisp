@@ -113,10 +113,10 @@ Example: \"eleven hundred\" for 1100, instead of \"one thousand one hundred\".")
 
 (defun make-recognizer (syntax-list &aux (graph (d-readable-graph syntax-list))
                                          (start (start-state graph))
-                                         (end (end-state graph))) ;might not be necessary
+                                         (end (end-state graph)))
   "Create a recognizer predicate from the given list of directed edges of a syntax diagram. 
-A valid syntax diagram is composed of nodes, with a unique start node having out-degree 1 and in-degree 0,
-and a unique end node having out-degree 0, and directed, labeled edges with recognizer predicates as labels."
+A valid syntax diagram is composed of nodes, with a unique start node named START and end node named END, 
+and directed, labeled edges with recognizer predicates as labels."
   (and start end
     (lambda (string)
       ;; breadth-first graph search
@@ -125,7 +125,8 @@ and a unique end node having out-degree 0, and directed, labeled edges with reco
            queue
            visited)
           ((null queue)
-           string)
+           (if (eq node end)
+               string))
           (let ((added (loop for e in (edges node graph)
                              for res = (funcall (edge-weight e) string)
                          if (not (member (end-node e) visited))
@@ -139,17 +140,15 @@ and a unique end node having out-degree 0, and directed, labeled edges with reco
 
 (defun start-state (syntax-graph)
   "Return the starting state of a given syntax diagram, if any."
-  (let ((start-list (remove 0
-                      (remove 1 (graph-nodes syntax-graph) :test-not #'= :key #'out-degree)
-                      :test-not #'= :key #'in-degree)))
-    (when (= (length start-list) 1)
-      (car start-list))))
+  (let ((start (remove 'start (graph-nodes syntax-graph) :test-not #'eq)))
+    (if start
+        (car start))))
 
 (defun end-state (syntax-graph)
   "Return the ending state of a given syntax diagram, if any."
-  (let ((end-list (remove 0 (graph-nodes syntax-graph) :test-not #'= :key #'out-degree)))
-    (when (= (length end-list) 1)
-      (car end-list))))
+  (let ((end (remove 'end (graph-nodes syntax-graph) :test-not #'eq)))
+    (if end
+        (car end))))
 
 (defun predicate-recognizer (pred)
   "Generate a recognizer predicate for strings from a predicate for characters."
@@ -190,3 +189,20 @@ and a unique end node having out-degree 0, and directed, labeled edges with reco
   (lambda (string &aux (res (funcall arg1 string)))
     (when res
       (funcall arg2 res))))
+
+(defun literal-recognizer (literal)
+  "Generate a recognizer for a literal string."
+  (if (characterp literal)
+      (setf literal (make-string 1 :initial-element literal)))
+  (lambda (string)
+    (and (<= (length literal) (length string))
+         (string= literal (subseq string 0 (length literal)))
+         (subseq string (length literal)))))
+
+;; using recursion to parse context-free and not just regular languages
+(defun parentheses (string)
+  "Recognize a balanced set of parentheses."
+  (funcall (make-recognizer `((start end ,#'identity)
+                              (start a   ,(literal-recognizer "("))
+                              (a     b   ,#'parentheses)
+                              (b     end ,(literal-recognizer ")"))))))
