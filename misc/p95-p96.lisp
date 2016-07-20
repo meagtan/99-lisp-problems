@@ -96,3 +96,52 @@ Example: \"eleven hundred\" for 1100, instead of \"one thousand one hundred\".")
     (and list
          (alpha-char-p (car list))
          (rest-p (cdr list)))))
+
+;; Extending the above predicate for general syntax diagrams as in the problem
+
+;; A syntax diagram can be represented as a directed graph, expressed in readable list form, that transitions from state to
+;;  state based on a parser predicate that returns the rest of the given sequence if it is true, and NIL otherwise.
+
+(defun make-parser (syntax-list &aux (graph (d-readable-graph syntax-list)))
+  "Create a parser predicate from the given list of directed edges of a syntax diagram. 
+A valid syntax diagram is composed of nodes, with a unique start node having out-degree 1 and in-degree 0,
+and a unique end node having out-degree 0 and in-degree 1, and directed, labeled edges with parser predicates as labels."
+  
+  )
+
+(defun start-state (syntax-graph)
+  "Return the starting state of a given syntax diagram, if any."
+  
+  )
+
+(defun end-state (syntax-graph)
+  "Return the ending state of a given syntax diagram, if any."
+  
+  )
+
+(defun predicate-parser (pred)
+  "Generate a parser predicate for strings from a predicate for characters."
+  (lambda (string)
+    (when (funcall pred (char string 0))
+          (subseq string 1))))
+
+(defun parser-predicate (parser)
+  "Generate a predicate that tests for exactly the strings recognized by PARSER."
+  (lambda (string &aux (res (funcall parser string)))
+    (and res (zerop (length res)))))
+
+(defun at-most-one (pred)
+  "Generate a parser predicate that checks at most one instance for the given predicate for characters."
+  (lambda (string)
+    (if (funcall pred (char string 0))
+        (subseq string 1)
+        string)))
+
+(defun kleene-star (pred)
+  "Generate a parser predicate that checks any number of instances for the given predicate for characters."
+  (lambda (string)
+    (if (funcall pred (char string 0))
+        (funcall (kleene-star pred) (subseq string 1))
+        string)))
+
+(defconstant id-parser #'identity "A parser predicate that does nothing.")
