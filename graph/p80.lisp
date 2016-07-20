@@ -135,6 +135,12 @@
   (cond ((eq node (start-node edge)) (end-node edge))
         ((eq node (end-node edge)) (start-node edge))))
 
+(defun edge-weight (edge)
+  "Return the weight of EDGE, if it exists."
+  (and (edge-p edge)
+       (consp (cdr edge))
+       (caddr edge)))
+
 (defun empty-p (graph)
   (null (graph-nodes graph)))
 
@@ -147,4 +153,12 @@
 
 (defun graph-equal-p (graph1 graph2)
   "Return T if GRAPH1 and GRAPH2 are the same graph."
-  (null (set-exclusive-or (adjacency-list graph1) (adjacency-list graph2))))
+  (null (set-exclusive-or (readable-list graph1) (readable-list graph2)
+          :test (lambda (a b)
+                  (or (and (not (graph-directed graph1))
+                           (not (graph-directed graph2))
+                           (edge-p a)
+                           (edge-p b)
+                           (null (set-exclusive-or (nodes a) (nodes b)))
+                           (eql (edge-weight a) (edge-weight b)))
+                      (eql a b))))))
