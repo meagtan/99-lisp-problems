@@ -106,15 +106,14 @@ Example: \"eleven hundred\" for 1100, instead of \"one thousand one hundred\".")
   "Alternate implementation of IDENTIFIER-P using general syntax diagrams."
   (funcall (recognizer-predicate
              (make-recognizer
-               `((start a ,(predicate-recognizer #'alpha-char-p))
-                 (a b ,(at-most-one (lambda (x) (eq x #\_))))
-                 (b end ,(predicate-recognizer #'alphanumericp))
-                 (start end ,id-recognizer))))
+               `((start end ,(predicate-recognizer #'alpha-char-p))
+                 (end b ,(at-most-one (lambda (x) (eq x #\_))))
+                 (b end ,(predicate-recognizer #'alphanumericp)))))
            string))
 
 (defun make-recognizer (syntax-list &aux (graph (d-readable-graph syntax-list))
                                          (start (start-state graph))
-                                         (end (end-state graph)))
+                                         (end (end-state graph))) ;might not be necessary
   "Create a recognizer predicate from the given list of directed edges of a syntax diagram. 
 A valid syntax diagram is composed of nodes, with a unique start node having out-degree 1 and in-degree 0,
 and a unique end node having out-degree 0, and directed, labeled edges with recognizer predicates as labels."
@@ -125,7 +124,7 @@ and a unique end node having out-degree 0, and directed, labeled edges with reco
            (string string)
            queue
            visited)
-          ((eq node end) ;is this the right ending condition?
+          ((null queue)
            string)
           (let ((added (loop for e in (edges node graph)
                              for res = (funcall (edge-weight e) string)
