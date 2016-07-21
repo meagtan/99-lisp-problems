@@ -1,9 +1,11 @@
 ;;;; Sudoku solver
 
+;;; p97
+
 (defun solve-sudoku (array &optional (spot (next-undefined-spot array)))
-  "Solve a valid Sudoku puzzle in-place, represented by a 9x9 array with elements either an integer between 1 and 9 or NIL."
+  "Return solutions to a valid Sudoku puzzle, represented by a 9x9 array with elements either an integer between 1 and 9 or NIL."
   (if (null spot)
-      array
+      (list array)
       (mapcan (lambda (n)
                 (setf (aref array (car spot) (cdr spot)) n)
                 (solve-sudoku array (next-undefined-spot array spot)))
@@ -44,3 +46,19 @@
           ((= col (* 3 (ceiling (cdr spot) 3))))
           (if (aref array row col)
               (push (aref array row col) res)))))
+
+(defun print-sudoku (array)
+  "Print a 9x9 array representing a Sudoku puzzle."
+  (dotimes (row 9)
+    ;; horizontal separators
+    (when (> row 0) 
+      (if (= (rem row 3) 0)
+          (print "--------+---------+--------")
+          (print "        |         |        ")))
+    ;; print each column
+    (dotimes (col 9)
+      ;; column separators
+      (when (> col 0)
+        (format t " ~[|~] " (rem col 3)))
+      ;; print array[row, col] if not NIL, else print .
+      (format t "~[.~;~:*~D~]" (aref array row col)))))
