@@ -119,21 +119,18 @@ A valid syntax diagram is composed of nodes, with a unique start node named STAR
 and directed, labeled edges with recognizer predicates as labels."
   (and start end
     (lambda (string)
-      ;; breadth-first graph search
+      ;; breadth-first graph search, allowing for loops as long as the predicate matches
       (do ((node start)
            (string string)
-           queue
-           visited)
+           queue)
           ((null queue)
            (if (eq node end)
                string))
           (let ((added (loop for e in (edges node graph)
                              for res = (funcall (edge-weight e) string)
-                         if (not (member (end-node e) visited))
                          if res
                          collect (cons (end-node e) res))))
-            (setf queue   (append queue added))
-            (setf visited (append visited added)))
+            (setf queue   (append queue added)))
           (let ((pair (pop queue)))
             (setf node (car pair)
                   string (cdr pair)))))))
