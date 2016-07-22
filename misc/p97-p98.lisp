@@ -62,3 +62,12 @@
         (format t " ~[|~] " (rem col 3)))
       ;; print array[row, col] if not NIL, else print .
       (format t "~[.~;~:*~D~]" (aref array row col)))))
+
+;;; p98
+
+(defun solve-nonogram (rows cols)
+  "Solve the nonogram puzzle represented by the given lists of solid lengths across each row and column."
+  ;; Akin to the Sudoku solution, go through each combination of solids across a given row,
+  ;; filtered based on the patterns for each column, which are adjusted accordingly.
+  ;; Convert the inefficient tree recursion + mapcan implementation into an iterative tree search.
+  )
