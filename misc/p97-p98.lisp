@@ -6,9 +6,9 @@
   "Return solutions to a valid Sudoku puzzle, represented by a 9x9 array with elements either an integer between 1 and 9 or NIL."
   (if (null spot)
       (list array)
-      (mapcan (lambda (n)
-                (setf (aref array (car spot) (cdr spot)) n)
-                (solve-sudoku array (next-undefined-spot array spot)))
+      (mapcan (lambda (n &aux (a (copy-seq array))) ;expensive
+                (setf (aref a (car spot) (cdr spot)) n)
+                (solve-sudoku a (next-undefined-spot a spot)))
               (set-difference (range 1 9) ;p22
                 (union (row-defined-spots array spot)
                        (col-defined-spots array spot)
@@ -65,9 +65,46 @@
 
 ;;; p98
 
-(defun solve-nonogram (rows cols)
-  "Solve the nonogram puzzle represented by the given lists of solid lengths across each row and column."
+(defun solve-nonogram (rows cols &optional puzzle)
+  "Solve the nonogram puzzle represented by the given lists of solid lengths across each row and column.
+A full cell in a solution of the puzzle will be represented by T, and an empty cell by NIL."
   ;; Akin to the Sudoku solution, go through each combination of solids across a given row,
   ;; filtered based on the patterns for each column, which are adjusted accordingly.
-  ;; Convert the inefficient tree recursion + mapcan implementation into an iterative tree search.
+  ;; Convert the inefficient tree recursion + mapcan implementation into an iterative tree search,
+  ;; perhaps by recording lists of rows in place of each node (recursion) of the tree.
+  (if (null rows)
+      (list puzzle)
+      ;; start from the last row
+      (mapcan (lambda (row &aux (p (partition-cols cols row)))
+                ;; if every cell is compatible with the current state of columns
+                (when (every #'identity (mapcar #'car p))
+                  (solve-nonogram (butlast rows)
+                                  (mapcar #'cadr p)
+                                  (cons row puzzle))))
+              (generate-rows (car (last rows))))))
+
+;; A column is represented as a list of numbers with last element possibly NIL, depending on if the last row can be filled.
+
+(defun partition-cols (row cols)
+  "Separate COLS into firsts and rests based on whether row is T at each column."
+  (loop for cell in row
+        for col in cols
+        if cell 
+          collect (list (column-first col) (column-rest col))
+        else
+          collect (list T col)))
+
+(defun column-first (col)
+  "Return T if a cell in the last row and same column as COL can be filled."
+  (not (null (car (last col)))))
+
+(defun column-rest (col)
+  "Return the rest of COL after the last row has been applied."
+  (case (car (last col))
+    (NIL (butlast col)) ;works also if col is NIL
+    (1   (append (butlast col) (list NIL)))
+    (T   (append (butlast col) (mapcar #'1- (last col))))))
+
+(defun generate-rows (row-list)
+  "Fill a row with T and NIL based on the given list of lengths."
   )
