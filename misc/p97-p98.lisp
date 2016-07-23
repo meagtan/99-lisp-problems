@@ -33,6 +33,13 @@
                           (col-defined-spots array spot binds)
                           (sqr-defined-spots array spot binds)))))))))
 
+(defun apply-bindings (binds array)
+  "Apply the given bindings to ARRAY."
+  (setf array (copy-seq array))
+  (loop for ((row . col) . n) in binds
+    do (setf (aref array row col) n))
+  array)
+
 (defun next-undefined-spot (array &optional defined-spots (start (cons 0 0)))
   "Return the next spot of ARRAY, read from left to right and from top to bottom, that comes after START and is NIL."
   (do ((row (car start)) 
@@ -94,10 +101,6 @@
 (defun solve-nonogram (rows cols &optional puzzle)
   "Solve the nonogram puzzle represented by the given lists of solid lengths across each row and column.
 A full cell in a solution of the puzzle will be represented by T, and an empty cell by NIL."
-  ;; Akin to the Sudoku solution, go through each combination of solids across a given row,
-  ;; filtered based on the patterns for each column, which are adjusted accordingly.
-  ;; Convert the inefficient tree recursion + mapcan implementation into an iterative tree search,
-  ;; perhaps by recording lists of rows in place of each node (recursion) of the tree.
   (if (null rows)
       (list puzzle)
       ;; start from the last row
@@ -105,9 +108,26 @@ A full cell in a solution of the puzzle will be represented by T, and an empty c
                 ;; if every cell is compatible with the current state of columns
                 (when (every #'identity (mapcar #'car p))
                   (solve-nonogram (butlast rows)
-                                  (mapcar #'cadr p)
+                                  (mapcar #'cdr p)
                                   (cons row puzzle))))
               (generate-rows (car (last rows))))))
+
+(defun solve-nonogram-iter (rows cols &aux res)
+  "Alternative iterative version of SOLVE-NONOGRAM."
+  (do* ((queue (list (cons NIL cols)) (cdr queue))
+        (step (car queue) (car queue))) ;a pair of filled rows and a column list
+       ((null queue) res)
+       (if (= (length (car step)) (length rows))
+           (push (car step) res)
+           (setf queue 
+             (append queue
+               (loop for row in (generate-rows (nth (- (length rows)
+                                                       (length (car step)))
+                                                    rows))
+                     for p = (partition-cols (cdr step) row)
+                 if (every #'identity (mapcar #'car p))
+                   collect (cons (cons row (car step))
+                                 (mapcar #'cdr p))))))))
 
 ;; A column is represented as a list of numbers with last element possibly NIL, depending on if the last row can be filled.
 
@@ -115,10 +135,10 @@ A full cell in a solution of the puzzle will be represented by T, and an empty c
   "Separate COLS into firsts and rests based on whether row is T at each column."
   (loop for cell in row
         for col in cols
-        if cell 
-          collect (list (column-first col) (column-rest col))
-        else
-          collect (list T col)))
+    if cell 
+      collect (cons (column-first col) (column-rest col))
+    else
+      collect (cons T col)))
 
 (defun column-first (col)
   "Return T if a cell in the last row and same column as COL can be filled."
