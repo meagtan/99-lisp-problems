@@ -55,19 +55,21 @@
   "Return the numbers on the same row as SPOT in ARRAY that are not NIL."
   (loop for col to (array-dimension array 1)
         for row = (car spot)
+        for bind = (assoc (cons row col) binds :test #'equal)
     if (aref array row col)
       collect it
-    if (assoc (cons row col) binds :test #'equal)
-      collect (cdr it)))
+    if bind
+      collect (cdr bind)))
 
 (defun col-defined-spots (array spot &optional binds)
   "Return the numbers on the same column as SPOT in ARRAY that are not NIL."
   (loop for row to (array-dimension array 0)
         for col = (cdr spot)
+        for bind = (assoc (cons row col) binds :test #'equal)
     if (aref array row col)
       collect it
-    if (assoc (cons row col) binds :test #'equal)
-      collect (cdr it)))
+    if bind
+      collect (cdr bind)))
 
 (defun sqr-defined-spots (array spot &optional binds)
   "Return the numbers on the same 3x3 square as SPOT in ARRAY that are not NIL."
@@ -110,7 +112,7 @@ A full cell in a solution of the puzzle will be represented by T, and an empty c
                   (solve-nonogram (butlast rows)
                                   (mapcar #'cdr p)
                                   (cons row puzzle))))
-              (generate-rows (car (last rows))))))
+              (generate-rows (car (last rows)) (length cols)))))
 
 (defun solve-nonogram-iter (rows cols &aux res)
   "Alternative iterative version of SOLVE-NONOGRAM."
@@ -123,7 +125,8 @@ A full cell in a solution of the puzzle will be represented by T, and an empty c
              (append queue
                (loop for row in (generate-rows (nth (- (length rows)
                                                        (length (car step)))
-                                                    rows))
+                                                    rows)
+                                               (length cols))
                      for p = (partition-cols (cdr step) row)
                  if (every #'identity (mapcar #'car p))
                    collect (cons (cons row (car step))
@@ -151,6 +154,35 @@ A full cell in a solution of the puzzle will be represented by T, and an empty c
     (1   (append (butlast col) (list NIL)))
     (T   (append (butlast col) (mapcar #'1- (last col))))))
 
-(defun generate-rows (row-list)
-  "Fill a row with T and NIL based on the given list of lengths."
-  )
+(defun generate-rows (row-list n)
+  "Collect ways to fill a row with T and NIL based on the given list of lengths."
+  ;; partition (- n (length row-list)) empty cells into (1+ (length row-list)) solid parts
+  (mapcar (lambda (partition &aux (rows (row-list)))
+            (append (make-list (car partition))
+                    (loop for i to (1- (length row-list))
+                          for fulls   = (pop rows)
+                          for empties = (pop partition)
+                      ;; make sure every intermediate empty block is full
+                      if (or (= i (1- (length row-list)))
+                             (> empties 0))
+                      append 
+                        (append (make-list fulls :initial-element T)
+                                (make-list empties)))))
+          (partitions (- n (length row-list))
+                      (1+ (length row-list)))))
+
+(defun partitions (n k)
+  "Partition N into K natural numbers, dependent of ordering."
+  (and (>= n 0) (> k 0)
+    (do* ((queue (list NIL) (cdr queue))
+          (part (car queue) (car queue)) ;an incomplete partition
+          res)
+         ((null queue) res)
+         (if (= (length part) k)
+             (when (= (reduce #'+ part) n) 
+               (push part res))
+             (setf queue
+               (append queue
+                 (mapcar (lambda (d)
+                           (cons d part))
+                         (range 0 (- n (reduce #'+ part)))))))))) ;p22
