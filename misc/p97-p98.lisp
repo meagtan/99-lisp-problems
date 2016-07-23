@@ -14,38 +14,64 @@
                        (col-defined-spots array spot)
                        (sqr-defined-spots array spot))))))
 
-(defun next-undefined-spot (array &optional (start (cons 0 0)))
+(defun solve-sudoku-iter (array &aux res (defined-num (defined-num array)))
+  "Alternate iterative version of SOLVE-SUDOKU."
+  (do* ((queue (list NIL)  (cdr queue))
+        (binds (car queue) (car queue)) ;a list containing bindings for spots
+        (spot (next-undefined-spot array (mapcar #'car binds))
+              (next-undefined-spot array (mapcar #'car binds))))
+       ((null queue) res)
+       (if (= (length binds) defined-num)
+           ;; add valid solution to list
+           (push (apply-bindings binds array) res)
+           (setf queue 
+             (append queue
+               (mapcar (lambda (n)
+                         (cons (cons spot n) binds))
+                 (set-difference (range 1 9)
+                   (union (row-defined-spots array spot binds)
+                          (col-defined-spots array spot binds)
+                          (sqr-defined-spots array spot binds)))))))))
+
+(defun next-undefined-spot (array &optional defined-spots (start (cons 0 0)))
   "Return the next spot of ARRAY, read from left to right and from top to bottom, that comes after START and is NIL."
   (do ((row (car start)) 
        (col (cdr start)))
       ((= row (array-dimension array 0)))
-      (unless (aref array row col)
+      (unless (or (aref array row col) 
+                  (member (cons row col) defined-spots :test #'equal))
         (return (cons row col)))
       (if (= (incf col) (array-dimension array 1))
           (setf row (1+ row) col 0))))
 
-(defun row-defined-spots (array spot)
+(defun row-defined-spots (array spot &optional binds)
   "Return the numbers on the same row as SPOT in ARRAY that are not NIL."
   (loop for col to (array-dimension array 1)
         for row = (car spot)
-        if (aref array row col)
-        collect it))
+    if (aref array row col)
+      collect it
+    if (assoc (cons row col) binds :test #'equal)
+      collect (cdr it)))
 
-(defun col-defined-spots (array spot)
+(defun col-defined-spots (array spot &optional binds)
   "Return the numbers on the same column as SPOT in ARRAY that are not NIL."
   (loop for row to (array-dimension array 0)
         for col = (cdr spot)
-        if (aref array row col)
-        collect it))
+    if (aref array row col)
+      collect it
+    if (assoc (cons row col) binds :test #'equal)
+      collect (cdr it)))
 
-(defun sqr-defined-spots (array spot)
+(defun sqr-defined-spots (array spot &optional binds)
   "Return the numbers on the same 3x3 square as SPOT in ARRAY that are not NIL."
   (do ((row (* 3 (floor (car spot) 3) (1+ row))) res)
       ((= row (* 3 (ceiling (car spot) 3))) res)
       (do ((col (* 3 (floor (cdr spot) 3)) (1+ col)))
           ((= col (* 3 (ceiling (cdr spot) 3))))
           (if (aref array row col)
-              (push (aref array row col) res)))))
+              (push (aref array row col) res))
+          (if (assoc (cons row col) binds :test #'equal)
+              (push (assoc (cons row col) binds :test #'equal) res)))))
 
 (defun print-sudoku (array)
   "Print a 9x9 array representing a Sudoku puzzle."
