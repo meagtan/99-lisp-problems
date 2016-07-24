@@ -51,16 +51,17 @@
                                ;; check for intersections
                                (every (lambda (edge &aux (other (other-node edge site)))
                                         (or (null (assoc other (car stack) :test #'equal))
-                                            (char= (char word (distance edge site))
+                                            (char= (char word (site-index edge site))
                                                    (char (second (assoc other (car stack) :test #'equal))
-                                                         (distance edge other)))))
-                                      (edges site graph)))
+                                                         (site-index edge other)))))
+                                      (edges site graph))) ;p80
                        collect (cons (list site word) (car stack)))
                  stack))))))
 
-(defun distance (edge site)
-  "Return the index of the intersection represented by EDGE on SITE."
-  )
+(defun site-index (edge site &aux (start (first site)) (dir (second site)) (meet (edge-weight edge))) ;p80
+  "Return the index of the intersection represented by EDGE on SITE, assuming SITE lies on that intersection."
+  (+ (* (car dir) (- (car meet) (car start)))
+     (* (cdr dir) (- (cdr meet) (cdr start)))))
 
 (defun puzzle-graph (puzzle)
   "Convert the string representation of a puzzle into a graph."
