@@ -146,6 +146,39 @@
                                           :initial-element cell
                                           :fill-pointer 1))))))))))
 
-(defun graph-puzzle (graph)
+(defun graph-puzzle (graph &aux matrix)
   "Convert the graph representation of a puzzle into a string."
-  )
+  ;; create intermediate 2d array
+  (destructuring-bind
+    (horizontal vertical)
+    (reduce (lambda (site acc)
+              (if (= (car (second site)) 0)
+                  (push site (first acc))
+                  (push site (second acc))))
+            (graph-nodes graph)
+            :from-end T
+            :initial-element (list NIL NIL))
+    (setf matrix
+      (make-array
+        ;; get boundaries
+        (list (reduce #'max 
+                (mapcar (lambda (site)
+                          (+ (car (first site)) (1- (third site))))
+                        horizontal))
+              (reduce #'max 
+                (mapcar (lambda (site)
+                          (+ (cdr (first site)) (1- (third site))))
+                        vertical)))
+        :initial-element #\Space)))
+  ;; write each site onto matrix
+  (dolist (site (graph-nodes graph))
+    (type-site site matrix))
+  ;; convert matrix into string
+  (format nil "~{~A~^~%~}"
+    (loop for row to (1- (array-dimension matrix 0))
+      collect ;each row as string
+        (coerce (make-array (array-dimension matrix 1)
+                  :displaced-to matrix
+                  :displaced-index-offset
+                    (* row (array-dimension matrix 1)))
+                'string))))
