@@ -68,16 +68,83 @@
   ;; convert puzzle into 2D matrix for easier horizontal/vertical traversal
   (with-input-from-string (s puzzle)
     (do* ((lst NIL (cons l lst))
-          (l (read-line s NIL) (read-line s NIL))
           (row 0 (1+ row))
-          (col 0 (max col (length l))))
+          (col 0 (max col (length l)))
+          (l (read-line s NIL) (read-line s NIL))) ;updated last for null check
          ((null l)
           (setf matrix (make-array (list row col)
-                         :initial-contents lst)))))
-  ;; scan each row for sites, add them as nodes to graph
-  
-  ;; scan each column for sites, add them as nodes and check for intersection
-  )
+                         :initial-contents 
+                           ;; expand each row to col
+                           (mapcar (lambda (row-list)
+                                     (append row-list
+                                       (make-list (- col (length row-list))
+                                         :initial-element #\Space)))
+                                   lst))))))
+  ;; scan each row and column for sites, add them as nodes to graph
+  (add-sites matrix graph (cons 0 1))
+  (add-sites matrix graph (cons 1 0))
+  ;; check for intersections
+  (destructuring-bind
+    (horizontal vertical)
+    (reduce (lambda (node acc)
+              (if (= (car (second node)) 0)
+                  (push node (first acc))
+                  (push node (second acc))))
+            (graph-nodes graph)
+            :from-end T
+            :initial-element (list NIL NIL))
+    (dolist (a horizontal)
+      (dolist (b vertical)
+        ;; check whether a and b intersect
+        ;; if they intersect, they must do so at the row of a and column of b
+        (and 
+          ;; the column of b is within a's bounds
+          (<= 0 
+              (- (cdr (first b))
+                 (cdr (first a)))
+              (1- (third a)))
+          ;; the row of a is within b's bounds
+          (<= 0 
+              (- (car (first a))
+                 (car (first b)))
+              (1- (third b)))
+          (push (list a b (cons (car (first a))
+                                (cdr (first b))))
+                (graph-edges graph))))))
+  graph)
+
+(defun add-sites (matrix graph direction)
+  "Scan MATRIX in the direction specified (either horizontal or vertical) and add the sites found to the nodes of GRAPH."
+  (dotimes (row (array-dimension matrix (car direction)))   ;row if 0, col if 1
+    (do* ((col 0 (1+ col))
+          (cell (if (= (car direction) 0) ;horizontal
+                    (aref matrix row col)
+                    (aref matrix col row)))
+          site) ;if a site is being read, contains its starting point, current length and current string
+         ((= col (array-dimension matrix (cdr direction)))) ;col if 0, row if 1
+         (if (char= cell #\Space)
+             ;; if a site has ended, add site to nodes, reset site
+             (and site (> (second site) 1) ;so vertical sites aren't captured as well
+               (push (list (first site)                  ;starting coordinates
+                           direction                     ;the given direction
+                           (second site)                 ;length
+                           (coerce (third site) 'string) ;word, if any
+                     (graph-nodes graph))
+               (setf site NIL)))
+             ;; start or continue site, with string reset if (aref matrix row col) = #\.
+             (cond (site
+                    (incf (second site))
+                    (if (char= cell #\.)
+                        (setf (third site) NIL)
+                        (vector-push cell (third site))))
+                   (T
+                    (setf site
+                      (list (cons row col)
+                            1
+                            (unless (char= cell #\.)
+                              (make-array (- (array-dimension matrix 0) row)
+                                          :initial-element cell
+                                          :fill-pointer 1))))))))))
 
 (defun graph-puzzle (graph)
   "Convert the graph representation of a puzzle into a string."
