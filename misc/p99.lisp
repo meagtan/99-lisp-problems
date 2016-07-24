@@ -63,9 +63,20 @@
   (+ (* (car dir) (- (car meet) (car start)))
      (* (cdr dir) (- (cdr meet) (cdr start)))))
 
-(defun puzzle-graph (puzzle)
+(defun puzzle-graph (puzzle &aux matrix (graph (make-graph)))
   "Convert the string representation of a puzzle into a graph."
-  ;; scan row by row
+  ;; convert puzzle into 2D matrix for easier horizontal/vertical traversal
+  (with-input-from-string (s puzzle)
+    (do* ((lst NIL (cons l lst))
+          (l (read-line s NIL) (read-line s NIL))
+          (row 0 (1+ row))
+          (col 0 (max col (length l))))
+         ((null l)
+          (setf matrix (make-array (list row col)
+                         :initial-contents lst)))))
+  ;; scan each row for sites, add them as nodes to graph
+  
+  ;; scan each column for sites, add them as nodes and check for intersection
   )
 
 (defun graph-puzzle (graph)
