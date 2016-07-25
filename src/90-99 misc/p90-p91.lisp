@@ -47,4 +47,4 @@ each representing the row of the queen on each column."
 
 (defun knight-moves ()
   "Return all moves a knight can make on a chessboard."
-  '((1 2) (2 1) (-1 2) (2 -1) (-1 -2) (-2 -1) (1 -2) (-2 1)))
+  '((1 . 2) (2 . 1) (-1 . 2) (2 . -1) (-1 . -2) (-2 . -1) (1 . -2) (-2 . 1)))
