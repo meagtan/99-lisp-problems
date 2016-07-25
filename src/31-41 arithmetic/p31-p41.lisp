@@ -1,6 +1,6 @@
 ;;;; Prime number arithmetic
 
-(in-package :99-lisp-problems)
+(in-package #:99-lisp-problems)
 
 ;;; p31
 

@@ -1,6 +1,6 @@
 ;;;; Graph isomorphism, traversal, etc.
 
-(in-package :99-lisp-problems)
+(in-package #:99-lisp-problems)
 
 ;;; p85
 

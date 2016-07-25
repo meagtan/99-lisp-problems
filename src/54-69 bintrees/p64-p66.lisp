@@ -1,6 +1,6 @@
 ;;;; Binary tree layout
 
-(in-package :99-lisp-problems)
+(in-package #:99-lisp-problems)
 
 ;;; A layout assigns a pair of coordinates to each node,  so the node (item left right) is transformed into 
 ;;;   ((item (x . y)) left right).

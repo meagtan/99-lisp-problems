@@ -1,6 +1,6 @@
 ;;;; Multiway tree operations
 
-(in-package :99-lisp-problems)
+(in-package #:99-lisp-problems)
 
 ;;; We shall represent a multiway tree as a cons pair containing an atom and a list of subtrees, i.e. as (<atom> <subtree>*).
 ;;; Then binary trees become a subclass of multiway trees with two subtrees at each node.

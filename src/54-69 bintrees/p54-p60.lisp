@@ -1,6 +1,6 @@
 ;;;; Constructing binary trees
 
-(in-package :99-lisp-problems)
+(in-package #:99-lisp-problems)
 
 ;;; In Lisp we represent the empty tree by 'nil' and the non-empty tree by the list (X L R), 
 ;;;   where X denotes the root node and L and R denote the left and right subtree, respectively. 
