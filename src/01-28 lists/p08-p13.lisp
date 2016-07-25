@@ -1,5 +1,7 @@
 ;;;; Compression, packing, etc.
-                      
+
+(in-package :99-lisp-problems)
+
 ;;; p08
 
 (defun compress (list)

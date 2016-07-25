@@ -1,5 +1,7 @@
 ;;;; Language processing
 
+(in-package :99-lisp-problems)
+
 ;;; p95
 
 (defun full-words (number &optional (base 10))

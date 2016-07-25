@@ -1,5 +1,7 @@
 ;;;; Representations of binary trees
 
+(in-package :99-lisp-problems)
+
 ;;; p67
 
 (defun tree-to-string (tree)
@@ -72,7 +74,7 @@ becomes 'abd..e..c.fg...' in dotstring notation."
       (format nil "~a~a~a" (first tree)
         (tree-to-dotstring (second tree))
         (tree-to-dotstring (third tree)))
-      #\.))
+      "."))
 
 (defun dotstring-to-tree (str)
   "Convert dotstring to tree, where the dotstring contains the preorder sequence of the nodes of the tree 

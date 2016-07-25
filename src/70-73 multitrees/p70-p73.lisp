@@ -1,5 +1,7 @@
 ;;;; Multiway tree operations
 
+(in-package :99-lisp-problems)
+
 ;;; We shall represent a multiway tree as a cons pair containing an atom and a list of subtrees, i.e. as (<atom> <subtree>*).
 ;;; Then binary trees become a subclass of multiway trees with two subtrees at each node.
 ;;; However, leaves will have no subtrees, not NIL subtrees. We need not then consider NIL trees.
@@ -53,7 +55,8 @@ is the total sum of the path lengths from the root to all nodes of the tree."
 
 (defun bottom-up (tree)
   "Sequence the nodes of the given tree bottom up."
-  (nconc (mapcan #'bottom-up (cdr tree)) (list (car tree))))
+  (when tree
+    (nconc (mapcan #'bottom-up (cdr tree)) (list (car tree)))))
 
 ;;; p73
 

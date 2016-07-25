@@ -1,5 +1,7 @@
 ;;;; Graph formats, conversions
 
+(in-package :99-lisp-problems)
+
 ;;; p80
 
 ;;; We shall consider three formats each for graphs, digraphs and weighted graphs:

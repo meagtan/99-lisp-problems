@@ -1,5 +1,7 @@
 ;;;; Prime number arithmetic
 
+(in-package :99-lisp-problems)
+
 ;;; p31
 
 ;; perhaps adapt this to Eratosthenes' sieve using optional arguments

@@ -1,5 +1,7 @@
 ;;;; Graph paths, spanning trees
 
+(in-package :99-lisp-problems)
+
 ;;; p81
 
 (defun paths (graph a b &optional visited)
@@ -37,7 +39,7 @@
   "Return T if TREE is a spanning tree of GRAPH."
   (member tree (s-trees graph)))
 
-(defun tree-p (graph)
+(defun graph-tree-p (graph)
   "Return T if GRAPH is a tree."
   (s-tree-p graph graph))
 
@@ -65,6 +67,7 @@
           (set-difference (graph-nodes graph) visited-ns)))
 
 (defun edge< (edge1 edge2)
+  "Return T if EDGE1 has less weight, if any, than EDGE2."
   (or (atom (cdr edge1))
       (and (consp (cdr edge2))
            (< (third edge1) (third edge2)))))

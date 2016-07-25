@@ -1,5 +1,7 @@
 ;;;; An arithmetic puzzle
 
+(in-package :99-lisp-problems)
+
 ;;; p93
 
 (defun find-equations (numbers)
@@ -140,7 +142,6 @@ Example: (+ (* 3 5) (- 2 7)) => (3 * 5 + 2 - 7); (* (+ 3 5) (- 2 7)) => ([ 3 + 5
                     (push (list (pop operators) arg1 arg2) output)))
               (pop operators))))
   ;; load operators into output
-  (do ()
-      ((null operators) (car output))
-      (let* ((arg2 (pop output)) (arg1 (pop output)))
-        (push (list (pop operators) arg1 arg2) output))))
+  (dolist (op operators (car output))
+    (let* ((arg2 (pop output)) (arg1 (pop output)))
+        (push (list op arg1 arg2) output))))

@@ -1,5 +1,7 @@
 ;;;; Crossword puzzle solver
 
+(in-package :99-lisp-problems)
+
 ;;; p99
 
 ;; The framework of a crossword puzzle is represented internally as a graph, with nodes representing sites, storing 
