@@ -1,5 +1,7 @@
 ;;;; Representations of binary trees
 
+(in-package :99-lisp-problems)
+
 ;;; p67
 
 (defun tree-to-string (tree)

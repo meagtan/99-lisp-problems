@@ -1,5 +1,7 @@
 ;;;; Collecting leaves, nodes, etc.
 
+(in-package :99-lisp-problems)
+
 ;;; p61
 
 (defun leaves (tree)

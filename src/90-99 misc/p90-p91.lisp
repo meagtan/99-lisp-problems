@@ -1,5 +1,7 @@
 ;;;; Chessboard problems
 
+(in-package :99-lisp-problems)
+
 ;;; p90
 
 (defun eight-queens (&optional (n 8))

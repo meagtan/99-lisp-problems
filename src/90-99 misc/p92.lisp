@@ -1,5 +1,7 @@
 ;;;; Von Koch's conjecture
 
+(in-package :99-lisp-problems)
+
 ;;; p92
 
 (defun von-koch (tree &aux (len (length (graph-nodes tree))))

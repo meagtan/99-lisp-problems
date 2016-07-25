@@ -1,5 +1,7 @@
 ;;;; An arithmetic puzzle
 
+(in-package :99-lisp-problems)
+
 ;;; p93
 
 (defun find-equations (numbers)

@@ -1,5 +1,7 @@
 ;;;; Graph paths, spanning trees
 
+(in-package :99-lisp-problems)
+
 ;;; p81
 
 (defun paths (graph a b &optional visited)

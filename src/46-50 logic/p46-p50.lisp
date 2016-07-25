@@ -1,5 +1,7 @@
 ;;;; Logic and codes
 
+(in-package :99-lisp-problems)
+
 ;;; p46-48
 
 ;;; The original Prolog problems rest on language-specific features such as operators. The following functions will concern 

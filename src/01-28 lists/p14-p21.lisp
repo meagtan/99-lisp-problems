@@ -1,5 +1,7 @@
 ;;;; More list operations
 
+(in-package :99-lisp-problems)
+
 ;;; p14
 
 (defun dupli (list)

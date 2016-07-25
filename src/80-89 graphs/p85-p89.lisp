@@ -1,5 +1,7 @@
 ;;;; Graph isomorphism, traversal, etc.
 
+(in-package :99-lisp-problems)
+
 ;;; p85
 
 (defun isomorphic-p (graph1 graph2)

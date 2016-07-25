@@ -1,5 +1,7 @@
 ;;;; Further index operations
 
+(in-package :99-lisp-problems)
+
 ;;; p22
 
 (defun range (i k)

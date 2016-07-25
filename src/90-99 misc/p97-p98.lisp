@@ -1,5 +1,7 @@
 ;;;; Sudoku solver
 
+(in-package :99-lisp-problems)
+
 ;;; p97
 
 (defun solve-sudoku (array &optional (spot (next-undefined-spot array)))
