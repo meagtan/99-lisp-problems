@@ -65,6 +65,7 @@
           (set-difference (graph-nodes graph) visited-ns)))
 
 (defun edge< (edge1 edge2)
+  "Return T if EDGE1 has less weight, if any, than EDGE2."
   (or (atom (cdr edge1))
       (and (consp (cdr edge2))
            (< (third edge1) (third edge2)))))
