@@ -37,7 +37,7 @@
   "Return T if TREE is a spanning tree of GRAPH."
   (member tree (s-trees graph)))
 
-(defun tree-p (graph)
+(defun graph-tree-p (graph)
   "Return T if GRAPH is a tree."
   (s-tree-p graph graph))
 
