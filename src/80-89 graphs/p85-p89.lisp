@@ -95,8 +95,8 @@
         ;; and remove them from the list of sorted nodes
         (setf nodes
           (remove-if (lambda (n)
-                     (and (not (or (edge node n graph) (edge n node graph)))
-                          (rplacd (assoc n res) color)))
+                       (and (not (or (edge node n graph) (edge n node graph)))
+                            (rplacd (assoc n res) color)))
             nodes))))
 
 ;;; p87
@@ -109,7 +109,7 @@
        (dolist (n (neighbors (car stack) graph))
          ;; if not already visited, add n to stack (and thereby res)
          (unless (member n res)
-           (push (cdr stack) n)))))
+           (push n (cdr stack))))))
 
 ;; returns spanning tree of connected component of start
 (defun depth-traverse-edges (graph start)
@@ -121,8 +121,8 @@
        ((null stack) (nreverse res))
        (dolist (n (neighbors node graph))
          (unless (member n visited)
-           (push (cons node n) res)
-           (push (cdr stack) n)))))
+           (push res (cons node n))
+           (push n (cdr stack))))))
 
 ;;; p88
 
@@ -144,12 +144,12 @@
       ;; try to color nodes in comp alternating between 1 and 2
       (rplacd (assoc (car comp) colors) 1)
       (dolist (e (depth-traverse-edges graph (car comp)))
-        (assert (and (cdr (assoc (car e) colors))         ;since comp is traversed depth-first
-                     (not (cdr (assoc (cdr e) colors))))) ;since e is drawn from a tree, (cdr e) must not be already visited
-        (rplacd (assoc (cdr e) colors)
-          (next (assoc (car e) colors)))
+        (assert (and (cdr (assoc (start-node e) colors))       ;since comp is traversed depth-first
+                     (not (cdr (assoc (end-node e) colors))))) ;since e is drawn from a tree, (cdr e) must not be already visited
+        (rplacd (assoc (end-node e) colors)
+          (next (cdr (assoc (start-node e) colors))))
         ;; look through edges around e
-        (dolist (edge (edges (cdr e) graph))
+        (dolist (edge (edges (end-node e) graph))
           ;; if there is a coloring conflict, return NIL
           (if (eq (assoc (start-node edge) colors)
                   (assoc (end-node   edge) colors))
